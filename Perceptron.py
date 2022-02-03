@@ -56,6 +56,22 @@ class Perceptron:
         # Return current model accuracy
         return acc
 
+    def train(self, steps, stop_acc=1):
+        """
+          Trains the model for a certain amount of steps or until it 
+          reaches a certain level of accuracy
+
+          Args:
+            steps: the amount of training steps the model should take
+            stop_acc: Minimum accuracy to stop training at
+        """
+        for _ in range(steps):
+            acc = self.train_step(stop_acc)
+            print(acc)
+            if stop_acc <= acc:
+                return acc
+        return acc
+
     def predict(self, data):
         """
           Predicts the class number the data belongs to

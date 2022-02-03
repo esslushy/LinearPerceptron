@@ -37,6 +37,5 @@ print(labels, df)
 penguin_perceptron = Perceptron(df.values.tolist(), labels.values.tolist(), relevant_classes)
 
 # Train it for 10 steps printing out the accuracy
-for _ in range(100):
-    print(penguin_perceptron.train_step(stop_acc=0.95))
+penguin_perceptron.train(100, 0.95)
 print(penguin_perceptron.predict_classes(df.values.tolist()))
