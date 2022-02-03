@@ -2,20 +2,30 @@ from random import randint
 
 # This file is responsible for
 class Perceptron:
-    def __init__(self, data, labels, classes=None, max_steps=200):
-        # Initiate data with bias attached to first field
-        self.data = [[1] + row for row in data]
+    def __init__(self, data, labels, classes=None):
+        """
+          A Perceptron is a binary classifier that learns how to split data
+          into 2 given classes.
+
+          Args:
+            data: data the perceptron is going to train on
+            labels: class labels for the data
+            classes: what the classes stand for that isn't just 0 or 1
+        """
+        # Initiate data
+        self.data = data
         self.labels = labels
         # How to interpret the labels
         self.classes = classes
-        # Max amount of steps this can train for before stopping
-        self.max_steps = max_steps
         # Initialize random weights including the bias
         self.w = list([randint(-5, 5) for _ in range(len(data[0]) + 1)])
 
-    def train_step(self):
+    def train_step(self, stop_acc=1):
         """
           Runs one training step of the model
+
+          Args:
+            stop_acc: Minimum accuracy to stop training at
         """
         # Get predictions on data
         predictions = self.predict(self.data)
@@ -24,11 +34,17 @@ class Perceptron:
         for i in range(len(predictions)):
             if predictions[i] != self.labels[i]:
                 # If they don't match, add the data, prediction, and real label to our mislabled list
+                # Add bias field to data as this is needed when updating weights later
                 mislabled.append({
-                    'data': self.data[i], 
+                    'data': [1] + self.data[i], 
                     'prediction': predictions[i], 
                     'label': self.labels[i]
                     })
+        # Compute accuracy
+        acc = 1-(len(mislabled)/len(predictions))
+        # If model is accurate enough, no need to update weights, return accuracy
+        if stop_acc <= acc:
+            return acc
         # Update Weights by a random mislabled point
         mislabled_point = randint(0, len(mislabled)-1)
         if mislabled[mislabled_point]['prediction'] == 0:
@@ -38,7 +54,7 @@ class Perceptron:
             # Prediction says it is class 1, we want it to be class 0, meaning x dot w is too big and must be decreased
             self.w = list([self.w[i] - mislabled[mislabled_point]['data'][i] for i in range(len(self.w))])
         # Return current model accuracy
-        return 1-(len(mislabled)/len(predictions))
+        return acc
 
     def predict(self, data):
         """
@@ -48,8 +64,8 @@ class Perceptron:
             data: the data to make predictions on
         """
         # Checks if the dot product of the data is positive (class 1)
-        # or negative (class 0)
-        return [int(dot(x, self.w) >= 0) for x in data]
+        # or negative (class 0). Adds bias vector at the top
+        return [int(dot([1] + x, self.w) >= 0) for x in data]
 
     def predict_classes(self, data):
         """

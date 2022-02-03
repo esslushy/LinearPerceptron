@@ -18,7 +18,7 @@ df = df[(df.species == relevant_classes[0]) | (df.species == relevant_classes[1]
 
 # Pull out labels
 labels = df['species']
-# Drop unused data (island, body mass, and sex) and labels (redundant)
+# Drop unused data (island, body mass, and sex) and species (redundant)
 df = df.drop(['island', 'body_mass_g', 'sex', 'species'], axis=1)
 
 # Z-score normalization. Tells how far each data point is off the mean.
@@ -38,4 +38,5 @@ penguin_perceptron = Perceptron(df.values.tolist(), labels.values.tolist(), rele
 
 # Train it for 10 steps printing out the accuracy
 for _ in range(100):
-    print(penguin_perceptron.train_step())
+    print(penguin_perceptron.train_step(stop_acc=0.95))
+print(penguin_perceptron.predict_classes(df.values.tolist()))
