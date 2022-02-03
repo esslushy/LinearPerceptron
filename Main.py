@@ -1,6 +1,5 @@
-from tkinter import Scale
-import numpy as np
 import seaborn as sns
+from Perceptron import Perceptron
 
 # Load dataframe
 sns.set(font_scale=1.5)
@@ -26,7 +25,17 @@ df = df.drop(['island', 'body_mass_g', 'sex', 'species'], axis=1)
 for col in df.columns:
     mean = df[col].mean()
     std_dev = df[col].std()
-    df = df.apply(lambda x: (x - mean) / std_dev, axis=1)
+    df = df.apply(lambda x: (x - mean) / std_dev)
+
+# Turn our labels into class labels (0 or 1)
+labels = labels.apply(lambda x: 0 if x == relevant_classes[0] else 1)
 
 # Let's take a look at our ready data
 print(labels, df)
+
+# Create the perceptron
+penguin_perceptron = Perceptron(df.values.tolist(), labels.values.tolist(), relevant_classes)
+
+# Train it for 10 steps printing out the accuracy
+for _ in range(100):
+    print(penguin_perceptron.train_step())
