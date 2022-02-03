@@ -67,7 +67,6 @@ class Perceptron:
         """
         for _ in range(steps):
             acc = self.train_step(stop_acc)
-            print(acc)
             if stop_acc <= acc:
                 return acc
         return acc
