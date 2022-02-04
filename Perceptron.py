@@ -51,7 +51,7 @@ class Perceptron:
         # Return how the model is doing based on passed in parameters
         return {key: self.metrics[key](list(self.predict(data)), labels) for key in self.metrics.keys()}
 
-    def train(self, data, labels, steps=200, stop_metrics=None):
+    def train(self, data, labels, steps=200, stop_metrics={}):
         """
           Trains the model for a certain amount of steps or until it 
           passes all stop metric requirements

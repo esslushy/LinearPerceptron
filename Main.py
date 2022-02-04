@@ -1,5 +1,6 @@
 import seaborn as sns
 from Perceptron import Perceptron, accuracy
+from sklearn.model_selection import KFold
 
 # Load dataframe
 sns.set(font_scale=1.5)
@@ -33,9 +34,23 @@ labels = labels.apply(lambda x: 0 if x == relevant_classes[0] else 1)
 # Let's take a look at our ready data
 print(labels, df)
 
-# Create the perceptron
-penguin_perceptron = Perceptron(relevant_classes, {'accuracy': accuracy})
+# Turn it into lists for our model to consume
+x = df.values
+y = labels.values
 
-# Train it for 100 steps printing out the accuracy
-print(penguin_perceptron.train(df.values.tolist(), labels.values.tolist(), 500, {'accuracy': 0.95}))
-print(penguin_perceptron.predict_classes(df.values.tolist()))
+# Let's train our model with k-fold cross validation to ensure that it is reliable
+
+# Fold across all our data in 80-20 split train to test changing whcih data is 
+# training and testing each time to ensure our model works well.
+kf = KFold(n_splits=5, shuffle=True)
+for train_index, test_index in kf.split(x):
+    # Create new perceptron
+    penguin_perceptron = Perceptron(relevant_classes, {'accuracy': accuracy})
+    # Train it
+    train_results = penguin_perceptron.train(x[train_index].tolist(), y[train_index].tolist(), 500, {'accuracy': 0.95})
+    print('Training results:')
+    print(train_results)
+    # Test it and get results
+    test_accuracy = accuracy(penguin_perceptron.predict(x[test_index].tolist()), y[test_index].tolist())
+    print('Testing accuracy: ')
+    print(test_accuracy)
