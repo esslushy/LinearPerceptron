@@ -2,7 +2,7 @@ from random import randint
 
 # This file is responsible for
 class Perceptron:
-    def __init__(self, data, labels, classes=None):
+    def __init__(self, data, labels, classes=None, metrics={}):
         """
           A Perceptron is a binary classifier that learns how to split data
           into 2 given classes.
@@ -19,13 +19,12 @@ class Perceptron:
         self.classes = classes
         # Initialize random weights including the bias
         self.w = list([randint(-5, 5) for _ in range(len(data[0]) + 1)])
+        # Store metrics that evaluate model
+        self.metrics = metrics
 
-    def train_step(self, stop_acc=1):
+    def train_step(self):
         """
           Runs one training step of the model
-
-          Args:
-            stop_acc: Minimum accuracy to stop training at
         """
         # Get predictions on data
         predictions = self.predict(self.data)
@@ -40,11 +39,6 @@ class Perceptron:
                     'prediction': predictions[i], 
                     'label': self.labels[i]
                     })
-        # Compute accuracy
-        acc = 1-(len(mislabled)/len(predictions))
-        # If model is accurate enough, no need to update weights, return accuracy
-        if stop_acc <= acc:
-            return acc
         # Update Weights by a random mislabled point
         mislabled_point = randint(0, len(mislabled)-1)
         if mislabled[mislabled_point]['prediction'] == 0:
@@ -53,23 +47,31 @@ class Perceptron:
         else:
             # Prediction says it is class 1, we want it to be class 0, meaning x dot w is too big and must be decreased
             self.w = list([self.w[i] - mislabled[mislabled_point]['data'][i] for i in range(len(self.w))])
-        # Return current model accuracy
-        return acc
+        # Return how the model is doing based on passed in parameters
+        return {key: self.metrics[key](list(self.predict(self.data)), self.labels) for key in self.metrics.keys()}
 
-    def train(self, steps, stop_acc=1):
+    def train(self, steps, stop_metrics=None):
         """
           Trains the model for a certain amount of steps or until it 
           reaches a certain level of accuracy
 
           Args:
             steps: the amount of training steps the model should take
-            stop_acc: Minimum accuracy to stop training at
+            stop_metrics: the metrics the model will watch and stop if it reaches the minimum value in all of them 
         """
         for _ in range(steps):
-            acc = self.train_step(stop_acc)
-            if stop_acc <= acc:
-                return acc
-        return acc
+            # Run the training
+            results = self.train_step()
+            # Check if it passes all stop metrics
+            for key in stop_metrics.keys():
+                if results[key] < stop_metrics[key]:
+                    # If any key is less then the stop metric, keep training
+                    continue
+                else:
+                    # Every key is greater than or equal to the stop metric, training is done
+                    return results
+        # Return final results
+        return results
 
     def predict(self, data):
         """
@@ -106,3 +108,13 @@ def dot(a, b):
     if len(a) != len(b):
         raise Exception(f'Vector {a} and Vector {b} are not the same size.')
     return sum([a[i] * b[i] for i in range(len(a))])
+
+def accuracy(pred, actual):
+    """
+      Calculates the accuracy of a classifier
+
+      Args:
+        pred: Predicted class labels
+        actual: The actual class labels
+    """
+    return sum([int(pred[i] == actual[i]) for i in range(len(actual))])/len(actual)

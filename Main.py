@@ -1,5 +1,5 @@
 import seaborn as sns
-from Perceptron import Perceptron
+from Perceptron import Perceptron, accuracy
 
 # Load dataframe
 sns.set(font_scale=1.5)
@@ -34,8 +34,8 @@ labels = labels.apply(lambda x: 0 if x == relevant_classes[0] else 1)
 print(labels, df)
 
 # Create the perceptron
-penguin_perceptron = Perceptron(df.values.tolist(), labels.values.tolist(), relevant_classes)
+penguin_perceptron = Perceptron(df.values.tolist(), labels.values.tolist(), relevant_classes, {'accuracy': accuracy})
 
 # Train it for 100 steps printing out the accuracy
-print(penguin_perceptron.train(100, 0.95))
+print(penguin_perceptron.train(100, {'accuracy': 0.95}))
 print(penguin_perceptron.predict_classes(df.values.tolist()))
