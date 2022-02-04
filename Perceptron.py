@@ -66,13 +66,8 @@ class Perceptron:
             # Run the training
             results = self.train_step(data, labels)
             # Check if it passes all stop metrics
-            for key in stop_metrics.keys():
-                if results[key] < stop_metrics[key]:
-                    # If any key is less then the stop metric, keep training
-                    continue
-                else:
-                    # Every key is greater than or equal to the stop metric, training is done
-                    return results
+            if all([results[key] >= stop_metrics[key] for key in stop_metrics.keys()]):
+                return results
         # Return final results
         return results
 
