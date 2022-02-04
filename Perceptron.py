@@ -1,43 +1,44 @@
 from random import randint
 
-# This file is responsible for
 class Perceptron:
-    def __init__(self, data, labels, classes=None, metrics={}):
+    def __init__(self, classes=None, metrics={}):
         """
           A Perceptron is a binary classifier that learns how to split data
           into 2 given classes.
 
           Args:
-            data: data the perceptron is going to train on
-            labels: class labels for the data
             classes: what the classes stand for that isn't just 0 or 1
+            metrics: what metrics to judge
         """
-        # Initiate data
-        self.data = data
-        self.labels = labels
         # How to interpret the labels
         self.classes = classes
-        # Initialize random weights including the bias
-        self.w = list([randint(-5, 5) for _ in range(len(data[0]) + 1)])
         # Store metrics that evaluate model
         self.metrics = metrics
+        # Initialize weight variable
+        self.w = None
 
-    def train_step(self):
+    def train_step(self, data, labels):
         """
-          Runs one training step of the model
+          Runs one training step of the model.
+
+          Args:
+            data: the data to train on
+            labels: the labels for the data
         """
+        if not self.w:
+            self.w = list([randint(-5, 5) for _ in range(len(data[0]) + 1)])
         # Get predictions on data
-        predictions = self.predict(self.data)
+        predictions = self.predict(data)
         # Gather all the predictions that don't match the actual
         mislabled = []
         for i in range(len(predictions)):
-            if predictions[i] != self.labels[i]:
+            if predictions[i] != labels[i]:
                 # If they don't match, add the data, prediction, and real label to our mislabled list
                 # Add bias field to data as this is needed when updating weights later
                 mislabled.append({
-                    'data': [1] + self.data[i], 
+                    'data': [1] + data[i], 
                     'prediction': predictions[i], 
-                    'label': self.labels[i]
+                    'label': labels[i]
                     })
         # Update Weights by a random mislabled point
         mislabled_point = randint(0, len(mislabled)-1)
@@ -48,20 +49,22 @@ class Perceptron:
             # Prediction says it is class 1, we want it to be class 0, meaning x dot w is too big and must be decreased
             self.w = list([self.w[i] - mislabled[mislabled_point]['data'][i] for i in range(len(self.w))])
         # Return how the model is doing based on passed in parameters
-        return {key: self.metrics[key](list(self.predict(self.data)), self.labels) for key in self.metrics.keys()}
+        return {key: self.metrics[key](list(self.predict(data)), labels) for key in self.metrics.keys()}
 
-    def train(self, steps, stop_metrics=None):
+    def train(self, data, labels, steps=200, stop_metrics=None):
         """
           Trains the model for a certain amount of steps or until it 
-          reaches a certain level of accuracy
+          passes all stop metric requirements
 
           Args:
+            data: the data to train on
+            labels: the labels for the data
             steps: the amount of training steps the model should take
             stop_metrics: the metrics the model will watch and stop if it reaches the minimum value in all of them 
         """
         for _ in range(steps):
             # Run the training
-            results = self.train_step()
+            results = self.train_step(data, labels)
             # Check if it passes all stop metrics
             for key in stop_metrics.keys():
                 if results[key] < stop_metrics[key]:
