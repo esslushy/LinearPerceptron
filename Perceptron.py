@@ -1,4 +1,5 @@
 from random import randint
+import numpy as np
 
 class Perceptron:
     def __init__(self, classes=None, metrics={}):
@@ -78,9 +79,11 @@ class Perceptron:
           Args:
             data: the data to make predictions on
         """
+        # Add bias to data
+        data = np.insert(data, 0, 1, axis=1)
         # Checks if the dot product of the data is positive (class 1)
         # or negative (class 0). Adds bias vector at the top
-        return [int(dot([1] + x, self.w) >= 0) for x in data]
+        return np.dot(data, self.w)
 
     def predict_classes(self, data):
         """

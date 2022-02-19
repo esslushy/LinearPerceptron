@@ -47,10 +47,10 @@ for train_index, test_index in kf.split(x):
     # Create new perceptron
     penguin_perceptron = Perceptron(relevant_classes, {'accuracy': accuracy})
     # Train it
-    train_results = penguin_perceptron.train(x[train_index].tolist(), y[train_index].tolist(), 500, {'accuracy': 0.95})
+    train_results = penguin_perceptron.train(x[train_index], y[train_index], 500, {'accuracy': 0.95})
     print('Training results:')
     print(train_results)
     # Test it and get results
-    test_accuracy = accuracy(penguin_perceptron.predict(x[test_index].tolist()), y[test_index].tolist())
+    test_accuracy = accuracy(penguin_perceptron.predict(x[test_index]), y[test_index])
     print('Testing accuracy: ')
     print(test_accuracy)
