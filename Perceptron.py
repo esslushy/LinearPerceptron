@@ -41,6 +41,7 @@ class Perceptron:
         mislabled_label = labels[mislabled]
         # Select a random data point
         data_point = random.randint(0, len(mislabled_data) - 1)
+        # Update on that data point
         if mislabled_label[data_point] == 1:
             # Prediction says it is class 0, when we want it to be class 1, meaning x dot w is too small and must be increased
             self.w += np.insert(mislabled_data[data_point], 0, 1)
@@ -48,7 +49,8 @@ class Perceptron:
             # Prediction says it is class 1, we want it to be class 0, meaning x dot w is too big and must be decreased
            self.w -= np.insert(mislabled_data[data_point], 0, 1)
         # Return how the model is doing based on passed in parameters
-        return {key: self.metrics[key](list(self.predict(data)), labels) for key in self.metrics.keys()}
+        new_predictions = self.predict(data)
+        return {key: self.metrics[key](new_predictions, labels) for key in self.metrics.keys()}
 
     def train(self, data, labels, steps=200, stop_metrics={}):
         """
@@ -93,11 +95,12 @@ class Perceptron:
           Args:
             data: the data to make predictions on
         """
+        predictions = self.predict(data)
         if self.classes:
             # Translates class 0 or class 1 to the real labels if provided
-            classify = np.vectorize(lambda x: self.classes[x])
-            return classify(self.predict(data))
-        return self.predict(data)
+            predictions[predictions == 0] = self.classes[0]
+            predictions[predictions == 1] = self.classes[1]
+        return predictions
 
 def accuracy(pred, actual):
     """
