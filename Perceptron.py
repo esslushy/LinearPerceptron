@@ -38,16 +38,15 @@ class Perceptron:
         mislabled = (predictions != labels)
         # Get the mislabled data points
         mislabled_data = data[mislabled]
-        mislabled_label = labels[mislabled]
-        # Select a random data point
-        data_point = random.randint(0, len(mislabled_data) - 1)
-        # Update on that data point
-        if mislabled_label[data_point] == 1:
-            # Prediction says it is class 0, when we want it to be class 1, meaning x dot w is too small and must be increased
-            self.w += np.insert(mislabled_data[data_point], 0, 1)
-        else:
-            # Prediction says it is class 1, we want it to be class 0, meaning x dot w is too big and must be decreased
-           self.w -= np.insert(mislabled_data[data_point], 0, 1)
+        mislabled_predictions = predictions[mislabled]
+        # Update over all data points.
+        # Add in bias column
+        mislabled_data = np.insert(mislabled_data, 0, 1, axis=1)
+        # Multiply all that were overestimated by -1, so when we sum them all, they are "subtracted"
+        # Overestimate are those data points predicted to be 1 when they are actually 0
+        mislabled_data[mislabled_predictions == 1] *= -1
+        # Sum all data by columns and add it to the existing weight. Updating weight by each mislabeled data point
+        self.w += np.sum(mislabled_data, axis=0)
         # Return how the model is doing based on passed in parameters
         new_predictions = self.predict(data)
         return {key: self.metrics[key](new_predictions, labels) for key in self.metrics.keys()}
