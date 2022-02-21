@@ -1,6 +1,7 @@
 import seaborn as sns
 from Perceptron import Perceptron, accuracy
 from sklearn.model_selection import KFold
+from sklearn import linear_model
 
 # Load dataframe
 sns.set(font_scale=1.5)
@@ -54,3 +55,7 @@ for train_index, test_index in kf.split(x):
     test_accuracy = accuracy(penguin_perceptron.predict(x[test_index]), y[test_index])
     print('Testing accuracy: ')
     print(test_accuracy)
+    print('Sklearn model for comparison')
+    sklearn_perceptron = linear_model.Perceptron()
+    sklearn_perceptron.fit(x[train_index], y[train_index])
+    print(sklearn_perceptron.score(x[test_index], y[test_index]))
